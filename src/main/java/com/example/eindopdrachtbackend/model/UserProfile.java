@@ -1,5 +1,6 @@
 package com.example.eindopdrachtbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -15,6 +16,10 @@ public class UserProfile {
     private String username;
     private List<String> preferredGenres;
     private String bio;
+
+    @OneToOne(mappedBy = "userProfile", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private User user;
 
     public Long getId() {
         return id;

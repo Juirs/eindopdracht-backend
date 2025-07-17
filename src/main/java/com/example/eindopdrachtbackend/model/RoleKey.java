@@ -1,4 +1,10 @@
 package com.example.eindopdrachtbackend.model;
 
-public class RoleKey {
+import java.io.Serializable;
+
+public class RoleKey implements Serializable {
+    private String username;
+    private String rolename;
 }
+
+

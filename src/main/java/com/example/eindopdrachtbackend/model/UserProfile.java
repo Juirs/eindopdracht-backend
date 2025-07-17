@@ -3,7 +3,7 @@ package com.example.eindopdrachtbackend.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user_profiles")
@@ -14,7 +14,14 @@ public class UserProfile {
     private Long id;
     private String avatar;
     private String username;
-    private List<String> preferredGenres;
+
+    @ElementCollection(targetClass = GameGenre.class)
+    @CollectionTable(name = "user_preferred_genres", joinColumns = @JoinColumn(name = "user_profile_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "genre")
+    private Set<GameGenre> preferredGenres;
+
+    @Column(length = 500)
     private String bio;
 
     @OneToOne(mappedBy = "userProfile", cascade = CascadeType.ALL)
@@ -45,11 +52,11 @@ public class UserProfile {
         this.username = username;
     }
 
-    public List<String> getPreferredGenres() {
+    public Set<GameGenre> getPreferredGenres() {
         return preferredGenres;
     }
 
-    public void setPreferredGenres(List<String> preferredGenres) {
+    public void setPreferredGenres(Set<GameGenre> preferredGenres) {
         this.preferredGenres = preferredGenres;
     }
 
@@ -59,5 +66,13 @@ public class UserProfile {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

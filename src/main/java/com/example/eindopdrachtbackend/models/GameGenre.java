@@ -1,4 +1,4 @@
-package com.example.eindopdrachtbackend.model;
+package com.example.eindopdrachtbackend.models;
 
 public enum GameGenre {
     ACTION("Action"),

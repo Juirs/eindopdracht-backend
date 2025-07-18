@@ -1,4 +1,4 @@
-package com.example.eindopdrachtbackend.model;
+package com.example.eindopdrachtbackend.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -26,7 +26,6 @@ public class GameReview {
     @JoinColumn(name = "user_id", nullable = false)
     private User reviewer;
 
-    // Constructors
     public GameReview() {}
 
     public GameReview(Integer rating, String comment, Game game, User reviewer) {
@@ -36,7 +35,6 @@ public class GameReview {
         this.reviewer = reviewer;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

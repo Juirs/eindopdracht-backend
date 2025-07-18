@@ -1,4 +1,4 @@
-package com.example.eindopdrachtbackend.model;
+package com.example.eindopdrachtbackend.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

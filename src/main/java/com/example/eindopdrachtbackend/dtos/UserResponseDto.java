@@ -11,7 +11,6 @@ public class UserResponseDto {
     private String username;
     private String email;
     private Boolean enabled;
-    private String password;
     private String apikey;
     private String avatar;
     private String bio;
@@ -45,14 +44,6 @@ public class UserResponseDto {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getApikey() {

@@ -2,6 +2,8 @@ package com.example.eindopdrachtbackend.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "game_reviews")
@@ -25,6 +27,9 @@ public class GameReview {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User reviewer;
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ReviewVote> votes = new ArrayList<>();
 
     public GameReview() {}
 
@@ -73,5 +78,29 @@ public class GameReview {
 
     public void setReviewer(User reviewer) {
         this.reviewer = reviewer;
+    }
+
+    public List<ReviewVote> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(List<ReviewVote> votes) {
+        this.votes = votes;
+    }
+
+    public int getUpvoteCount() {
+        return votes != null ? (int) votes.stream()
+                .filter(vote -> vote.getVoteType() == VoteType.UPVOTE)
+                .count() : 0;
+    }
+
+    public int getDownvoteCount() {
+        return votes != null ? (int) votes.stream()
+                .filter(vote -> vote.getVoteType() == VoteType.DOWNVOTE)
+                .count() : 0;
+    }
+
+    public int getTotalScore() {
+        return getUpvoteCount() - getDownvoteCount();
     }
 }

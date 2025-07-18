@@ -51,39 +51,38 @@ public class SpringSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth ->
                         auth
-                                // User endpoints, copied from my tech-it-easy project.
-                                //TODO: Replace with your own endpoints and roles
-
+                                // User endpoints
                                 .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/users").hasAnyRole("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.GET, "/users/**").hasAnyRole("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.PUT, "/users/**").hasAnyRole("ADMIN", "USER")
-                                .requestMatchers(HttpMethod.POST, "/users/**").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
 
-                                // Television endpoints
-                                .requestMatchers(HttpMethod.POST, "/televisions").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/televisions/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/televisions/**").hasAnyRole("ADMIN", "USER")
-                                .requestMatchers(HttpMethod.PUT, "/televisions/**").hasAnyRole("ADMIN", "USER")
+                                // Game endpoints
+                                .requestMatchers(HttpMethod.POST, "/games").hasAnyRole("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.GET, "/games/**").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/games/**").hasAnyRole("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.DELETE, "/games/**").hasAnyRole("ADMIN", "USER")
 
-                                // Remote Controller endpoints
-                                .requestMatchers(HttpMethod.POST, "/remotecontrollers").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/remotecontrollers/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/remotecontrollers/**").hasAnyRole("ADMIN", "USER")
-                                .requestMatchers(HttpMethod.PUT, "/remotecontrollers/**").hasAnyRole("ADMIN", "USER")
+                                // Game Review endpoints
+                                .requestMatchers(HttpMethod.POST, "/reviews").hasAnyRole("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/reviews/**").hasAnyRole("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.DELETE, "/reviews/**").hasAnyRole("ADMIN", "USER")
 
-                                // CI Module endpoints
-                                .requestMatchers(HttpMethod.POST, "/cimodules").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/cimodules/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/cimodules/**").hasAnyRole("ADMIN", "USER")
-                                .requestMatchers(HttpMethod.PUT, "/cimodules/**").hasAnyRole("ADMIN", "USER")
+                                // Review Vote endpoints
+                                .requestMatchers(HttpMethod.POST, "/reviews/*/vote").hasAnyRole("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.DELETE, "/reviews/*/vote").hasAnyRole("ADMIN", "USER")
 
-                                // Wall Bracket endpoints
-                                .requestMatchers(HttpMethod.POST, "/wallbrackets").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/wallbrackets/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/wallbrackets/**").hasAnyRole("ADMIN", "USER")
-                                .requestMatchers(HttpMethod.PUT, "/wallbrackets/**").hasAnyRole("ADMIN", "USER")
+                                // Game Jam endpoints
+                                .requestMatchers(HttpMethod.POST, "/gamejams").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/gamejams/**").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/gamejams/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/gamejams/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/gamejams/*/participate").hasAnyRole("ADMIN", "USER")
+
+                                // Email endpoint
+                                .requestMatchers(HttpMethod.POST, "/send").hasAnyRole("ADMIN", "USER")
 
                                 .requestMatchers("/authenticated").authenticated()
                                 .requestMatchers("/authenticate").permitAll()

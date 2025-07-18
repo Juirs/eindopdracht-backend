@@ -1,5 +1,6 @@
 package com.example.eindopdrachtbackend.services;
 
+import com.example.eindopdrachtbackend.dtos.UserRequestDto;
 import com.example.eindopdrachtbackend.dtos.UserResponseDto;
 import com.example.eindopdrachtbackend.models.Role;
 import com.example.eindopdrachtbackend.models.User;
@@ -25,7 +26,7 @@ public class UserService {
         this.encoder = encoder;
     }
 
-
+    // READ OPERATIONS
     public List<UserResponseDto> getUsers() {
         List<UserResponseDto> collection = new ArrayList<>();
         List<User> list = userRepository.findAll();
@@ -36,95 +37,135 @@ public class UserService {
     }
 
     public UserResponseDto getUser(String username) {
-        UserResponseDto dto = new UserResponseDto();
         Optional<User> user = userRepository.findById(username);
-        if (user.isPresent()){
-            dto = fromUser(user.get());
-        }else {
-            throw new UsernameNotFoundException(username);
+        if (user.isPresent()) {
+            return fromUser(user.get());
+        } else {
+            throw new UsernameNotFoundException("User not found: " + username);
         }
-        return dto;
     }
 
     public boolean userExists(String username) {
         return userRepository.existsById(username);
     }
 
-    public String createUser(UserResponseDto userResponseDto) {
-        String randomString = RandomStringGenerator.generateAlphaNumeric(20);
-        userResponseDto.setApikey(randomString);
-        User newUser = userRepository.save(toUser(userResponseDto));
-        return newUser.getUsername();
+    // CREATE OPERATION
+    public String createUser(UserRequestDto userRequestDto) {
+        if (userExists(userRequestDto.getUsername())) {
+            throw new RuntimeException("Username already exists: " + userRequestDto.getUsername());
+        }
+
+        User newUser = new User();
+        newUser.setUsername(userRequestDto.getUsername());
+        newUser.setPassword(encoder.encode(userRequestDto.getPassword()));
+        newUser.setEmail(userRequestDto.getEmail());
+        newUser.setEnabled(true);
+        newUser.setApikey(RandomStringGenerator.generateAlphaNumeric(20));
+
+        Set<Role> defaultRoles = new HashSet<>();
+        defaultRoles.add(new Role(userRequestDto.getUsername(), "USER"));
+        newUser.setRoles(defaultRoles);
+
+        User savedUser = userRepository.save(newUser);
+        return savedUser.getUsername();
     }
 
+    // UPDATE OPERATIONS
+    public void updateUser(String username, UserRequestDto updateRequest) {
+        if (!userRepository.existsById(username)) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        User user = userRepository.findById(username).get();
+        user.setEmail(updateRequest.getEmail());
+        userRepository.save(user);
+    }
+
+    public void updatePassword(String username, String newPassword) {
+        if (!userRepository.existsById(username)) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        User user = userRepository.findById(username).get();
+        user.setPassword(encoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public void enableUser(String username, boolean enabled) {
+        if (!userRepository.existsById(username)) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        User user = userRepository.findById(username).get();
+        user.setEnabled(enabled);
+        userRepository.save(user);
+    }
+
+    // DELETE OPERATION
     public void deleteUser(String username) {
+        if (!userRepository.existsById(username)) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
         userRepository.deleteById(username);
     }
 
-    public void updateUser(String username, UserResponseDto newUser) {
-        if (!userRepository.existsById(username)) throw new UsernameNotFoundException(username);
-        User user = userRepository.findById(username).get();
-        user.setPassword(newUser.getPassword());
-        userRepository.save(user);
-    }
-
+    // ROLE MANAGEMENT
     public Set<Role> getRoles(String username) {
-        if (!userRepository.existsById(username)) throw new UsernameNotFoundException(username);
-        User user = userRepository.findById(username).get();
-        UserResponseDto userResponseDto = fromUser(user);
-        return userResponseDto.getRoles();
-    }
-
-    public void addRole(String username, String role) {
-
-        if (!userRepository.existsById(username)) throw new UsernameNotFoundException(username);
-        User user = userRepository.findById(username).get();
-
-        // Get existing roles or create new set if null
-        Set<Role> userRoles = user.getRoles();
-        if (userRoles == null) {
-            userRoles = new HashSet<>();
+        if (!userRepository.existsById(username)) {
+            throw new UsernameNotFoundException("User not found: " + username);
         }
-
-        // Add the new role to the set
-        userRoles.add(new Role(username, role));
-        user.setRoles(userRoles);
-        userRepository.save(user);
-    }
-
-    public void removeRole(String username, String role) {
-        if (!userRepository.existsById(username)) throw new UsernameNotFoundException(username);
         User user = userRepository.findById(username).get();
-        Role roleToRemove = user.getRoles().stream().filter((a) -> a.getRole().equalsIgnoreCase(role)).findAny().get();
-        user.removeRole(roleToRemove);
+        return user.getRoles();
+    }
+
+    public void addRole(String username, String authority) {
+        if (!userRepository.existsById(username)) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+        User user = userRepository.findById(username).get();
+        user.addRole(new Role(username, authority));
         userRepository.save(user);
     }
 
-    public static UserResponseDto fromUser(User user){
+    public void removeRole(String username, String authority) {
+        if (!userRepository.existsById(username)) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+        User user = userRepository.findById(username).get();
+        Role authorityToRemove = user.getRoles().stream()
+                .filter((a) -> a.getRole().equalsIgnoreCase(authority))
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("Role not found: " + authority));
+        user.removeRole(authorityToRemove);
+        userRepository.save(user);
+    }
 
+    public User getUserForAuthentication(String username) {
+        Optional<User> user = userRepository.findById(username);
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+        return user.get();
+    }
+
+    public static UserResponseDto fromUser(User user) {
         var dto = new UserResponseDto();
 
         dto.setUsername(user.getUsername());
-        dto.setPassword(user.getPassword());
         dto.setEnabled(user.getEnabled());
         dto.setApikey(user.getApikey());
         dto.setEmail(user.getEmail());
         dto.setRoles(user.getRoles());
 
+        if (user.getUserProfile() != null) {
+            dto.setAvatar(user.getUserProfile().getAvatar());
+            dto.setBio(user.getUserProfile().getBio());
+            dto.setPreferredGenres(user.getUserProfile().getPreferredGenres());
+        }
+
+        dto.setGamesCreated(user.getGames() != null ? user.getGames().size() : 0);
+        dto.setReviewsWritten(user.getReviews() != null ? user.getReviews().size() : 0);
+
         return dto;
     }
-
-    public User toUser(UserResponseDto userResponseDto) {
-
-        var user = new User();
-
-        user.setUsername(userResponseDto.getUsername());
-        user.setPassword(encoder.encode(userResponseDto.getPassword()));
-        user.setEnabled(userResponseDto.getEnabled());
-        user.setApikey(userResponseDto.getApikey());
-        user.setEmail(userResponseDto.getEmail());
-
-        return user;
-    }
-
 }

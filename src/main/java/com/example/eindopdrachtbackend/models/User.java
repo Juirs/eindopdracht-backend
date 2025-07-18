@@ -1,9 +1,9 @@
-package com.example.eindopdrachtbackend.model;
+package com.example.eindopdrachtbackend.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -11,10 +11,6 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -23,27 +19,32 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private Boolean enabled = true;
+
+    @Column(unique = true)
+    private String apikey;
+
     @OneToMany(mappedBy = "developer", cascade = CascadeType.ALL)
     private List<Game> games;
 
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL)
     private List<GameReview> reviews;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "username", referencedColumnName = "username"),
-            inverseJoinColumns = @JoinColumn(name = "rolename", referencedColumnName = "rolename")
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "username"),
+            inverseJoinColumns = {
+                @JoinColumn(name = "role_username", referencedColumnName = "username"),
+                @JoinColumn(name = "role_name", referencedColumnName = "role")
+            }
     )
-    private Collection<Role> roles;
+    private Set<Role> roles;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "id")
     @JsonManagedReference
     private UserProfile userProfile;
-
-    public Long getId() {
-        return id;
-    }
 
     public List<Game> getGames() {
         return games;
@@ -61,7 +62,7 @@ public class User {
         this.reviews = reviews;
     }
 
-    public void setRoles(Collection<Role> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
@@ -71,10 +72,6 @@ public class User {
 
     public void setUserProfile(UserProfile userProfile) {
         this.userProfile = userProfile;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUsername() {
@@ -101,7 +98,36 @@ public class User {
         this.email = email;
     }
 
-    public Collection<Role> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getApikey() {
+        return apikey;
+    }
+
+    public void setApikey(String apikey) {
+        this.apikey = apikey;
+    }
+
+    public void removeRole(Role role) {
+        if (this.roles != null) {
+            this.roles.remove(role);
+        }
+    }
+
+    public void addRole(Role role) {
+        if (this.roles == null) {
+            this.roles = new HashSet<>();
+        }
+        this.roles.add(role);
     }
 }

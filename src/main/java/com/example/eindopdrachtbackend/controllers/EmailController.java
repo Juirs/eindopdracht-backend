@@ -1,6 +1,6 @@
-package com.example.eindopdrachtbackend.controller;
+package com.example.eindopdrachtbackend.controllers;
 
-import com.example.eindopdrachtbackend.service.EmailService;
+import com.example.eindopdrachtbackend.services.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;

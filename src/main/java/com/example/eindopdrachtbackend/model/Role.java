@@ -14,16 +14,16 @@ public class Role {
 
     @Id
     @Column(nullable = false)
-    private String rolename;
+    private String role;
 
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
 
     public Role() {}
 
-    public Role(String username, String rolename) {
+    public Role(String username, String role) {
         this.username = username;
-        this.rolename = rolename;
+        this.role = role;
     }
 
     public String getUsername() {
@@ -35,11 +35,11 @@ public class Role {
     }
 
     public String getRolename() {
-        return rolename;
+        return role;
     }
 
-    public void setRolename(String rolename) {
-        this.rolename = rolename;
+    public void setRolename(String role) {
+        this.role = role;
     }
 
     public Set<User> getUsers() {

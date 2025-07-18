@@ -1,4 +1,4 @@
-package com.example.eindopdrachtbackend.service;
+package com.example.eindopdrachtbackend.services;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

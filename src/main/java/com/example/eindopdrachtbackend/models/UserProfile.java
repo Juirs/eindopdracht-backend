@@ -13,7 +13,6 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String avatar;
-    private String username;
 
     @ElementCollection(targetClass = GameGenre.class)
     @CollectionTable(name = "user_preferred_genres", joinColumns = @JoinColumn(name = "user_profile_id"))
@@ -44,14 +43,6 @@ public class UserProfile {
         this.avatar = avatar;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public Set<GameGenre> getPreferredGenres() {
         return preferredGenres;
     }
@@ -74,5 +65,9 @@ public class UserProfile {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getUsername() {
+        return user != null ? user.getUsername() : null;
     }
 }

@@ -67,7 +67,6 @@ public class SpringSecurityConfig {
                                 .requestMatchers(HttpMethod.PUT, "/users/*/profile").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/users/*/profile/avatar").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/users/*/profile/avatar").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/avatars/**").permitAll()
 
                                 // User management endpoints
                                 .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")

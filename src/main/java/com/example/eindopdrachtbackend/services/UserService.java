@@ -4,6 +4,7 @@ import com.example.eindopdrachtbackend.dtos.UserRequestDto;
 import com.example.eindopdrachtbackend.dtos.UserResponseDto;
 import com.example.eindopdrachtbackend.models.Role;
 import com.example.eindopdrachtbackend.models.User;
+import com.example.eindopdrachtbackend.models.UserProfile;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
 import com.example.eindopdrachtbackend.utils.RandomStringGenerator;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,11 +63,17 @@ public class UserService {
         newUser.setEnabled(true);
         newUser.setApikey(RandomStringGenerator.generateAlphaNumeric(20));
 
-        Set<Role> defaultRoles = new HashSet<>();
-        defaultRoles.add(new Role(userRequestDto.getUsername(), "USER"));
-        newUser.setRoles(defaultRoles);
+        UserProfile userProfile = new UserProfile();
+        userProfile.setUser(newUser);
+        userProfile.setBio(null);
+        userProfile.setAvatar(null);
+        userProfile.setPreferredGenres(new HashSet<>());
+
+        newUser.setUserProfile(userProfile);
 
         User savedUser = userRepository.save(newUser);
+        addRole(savedUser.getUsername(), "USER");
+
         return savedUser.getUsername();
     }
 

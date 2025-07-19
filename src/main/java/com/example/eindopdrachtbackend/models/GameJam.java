@@ -1,10 +1,6 @@
 package com.example.eindopdrachtbackend.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -19,30 +15,23 @@ public class GameJam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name cannot exceed 100 characters")
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @NotBlank(message = "Description is required")
-    @Column(length = 1000)
+    @Column(nullable = false, length = 1000)
     private String description;
 
-    @NotBlank(message = "Rules are required")
-    @Size(max = 1000, message = "Rules cannot exceed 1000 characters")
-    @Column(length = 1000)
+    @Column(nullable = false, length = 1000)
     private String rules;
 
-    @NotBlank(message = "Theme is required")
-    @Size(max = 100, message = "Theme cannot exceed 100 characters")
+    @Column(nullable = false, length = 100)
     private String theme;
 
     private String gameJamImageUrl;
 
-    @NotNull(message = "Start date is required")
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
-    @NotNull(message = "End date is required")
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
@@ -50,7 +39,7 @@ public class GameJam {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Min(value = 1, message = "Max participants must be at least 1")
+    @Column(name = "max_participants", nullable = false)
     private int maxParticipants = 100;
 
     @Column(name = "current_participants")

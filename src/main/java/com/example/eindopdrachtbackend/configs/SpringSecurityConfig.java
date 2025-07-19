@@ -62,33 +62,39 @@ public class SpringSecurityConfig {
                                 .requestMatchers(HttpMethod.PUT, "/games/**").hasAnyRole("ADMIN", "DEVELOPER")
                                 .requestMatchers(HttpMethod.DELETE, "/games/**").hasAnyRole("ADMIN", "DEVELOPER")
 
-                                // Review endpoints
+                                // UserProfile endpoints
+                                .requestMatchers(HttpMethod.GET, "/users/*/profile").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/users/*/profile").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/users/*/profile/avatar").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/users/*/profile/avatar").permitAll()
+
+                                // User management endpoints
+                                .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
+
+                                // Individual user access
+                                .requestMatchers(HttpMethod.GET, "/users/{username}").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/users/{username}").authenticated()
+
+                                // Role management
+                                .requestMatchers("/users/*/authorities/**").hasRole("ADMIN")
+
+                                // Review endpoints (future implementation)
                                 .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/reviews").authenticated()
                                 .requestMatchers(HttpMethod.PUT, "/reviews/**").authenticated()
                                 .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
 
-                                // Vote endpoints
+                                // Vote endpoints (future implementation)
                                 .requestMatchers(HttpMethod.POST, "/reviews/*/vote").authenticated()
                                 .requestMatchers(HttpMethod.DELETE, "/reviews/*/vote").authenticated()
 
-                                // Game Jam endpoints
+                                // Game Jam endpoints (future implementation)
                                 .requestMatchers(HttpMethod.GET, "/gamejams/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/gamejams").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/gamejams/**").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/gamejams/**").hasRole("ADMIN")
-
-                                // User management
-                                .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
-
-                                // Profile access
-                                .requestMatchers(HttpMethod.GET, "/users/**").authenticated()
-                                .requestMatchers(HttpMethod.PUT, "/users/**").authenticated()
-
-                                // Role management
-                                .requestMatchers("/users/*/authorities/**").hasRole("ADMIN")
 
                                 // Email functionality
                                 .requestMatchers("/send").hasRole("ADMIN")

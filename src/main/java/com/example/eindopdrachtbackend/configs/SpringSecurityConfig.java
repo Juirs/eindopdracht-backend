@@ -51,50 +51,51 @@ public class SpringSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth ->
                         auth
-                                // Public endpoints
-                                .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
+                                // Authentication endpoints
                                 .requestMatchers(HttpMethod.POST, "/authenticate").permitAll()
-                                .requestMatchers("/authenticated").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/authenticated").authenticated()
 
-                                // Game endpoints
-                                .requestMatchers(HttpMethod.GET, "/games/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/games").hasAnyRole("ADMIN", "DEVELOPER")
-                                .requestMatchers(HttpMethod.PUT, "/games/**").hasAnyRole("ADMIN", "DEVELOPER")
-                                .requestMatchers(HttpMethod.DELETE, "/games/**").hasAnyRole("ADMIN", "DEVELOPER")
-
-                                .requestMatchers(HttpMethod.GET, "/games/*/reviews").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/games/*/reviews/*").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/games/*/reviews").authenticated()
-                                .requestMatchers(HttpMethod.DELETE, "/games/*/reviews/*").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/games/*/reviews/*/upvote").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/games/*/reviews/*/downvote").authenticated()
-
-                                // UserProfile endpoints
-                                .requestMatchers(HttpMethod.GET, "/users/*/profile").authenticated()
-                                .requestMatchers(HttpMethod.PUT, "/users/*/profile").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/users/*/profile/avatar").authenticated()
-                                .requestMatchers(HttpMethod.GET, "/users/*/profile/avatar").permitAll()
-
-                                // User management endpoints
+                                // User registration and management
+                                .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
-
-                                // Individual user access
                                 .requestMatchers(HttpMethod.GET, "/users/{username}").authenticated()
                                 .requestMatchers(HttpMethod.PUT, "/users/{username}").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/users/{username}").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/users/{username}/change-password").authenticated()
 
-                                // Role management
-                                .requestMatchers("/users/*/authorities/**").hasRole("ADMIN")
+                                // Role/Authority management
+                                .requestMatchers(HttpMethod.GET, "/users/{username}/authorities").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/users/{username}/authorities").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/users/{username}/authorities/{authority}").hasRole("ADMIN")
 
-                                // Game Jam endpoints (future implementation)
-                                .requestMatchers(HttpMethod.GET, "/gamejams/**").permitAll()
+                                // UserProfile endpoints
+                                .requestMatchers(HttpMethod.GET, "/users/{username}/profile").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/users/{username}/profile").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/users/{username}/profile/avatar").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/users/{username}/profile/avatar").permitAll()
+
+                                // Game endpoints
+                                .requestMatchers(HttpMethod.GET, "/games").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/games/{id}").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/games").hasAnyRole("ADMIN", "DEVELOPER")
+                                .requestMatchers(HttpMethod.PUT, "/games/{id}").hasAnyRole("ADMIN", "DEVELOPER")
+                                .requestMatchers(HttpMethod.DELETE, "/games/{id}").hasAnyRole("ADMIN", "DEVELOPER")
+
+                                .requestMatchers(HttpMethod.GET, "/games/{gameId}/reviews").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/games/{gameId}/reviews").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/reviews/{reviewId}").authenticated()
+
+                                .requestMatchers(HttpMethod.POST, "/reviews/{reviewId}/upvote").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/reviews/{reviewId}/downvote").authenticated()
+
+                                // GameJam endpoints
+                                .requestMatchers(HttpMethod.GET, "/gamejams").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/gamejams/{id}").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/gamejams").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.PUT, "/gamejams/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/gamejams/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/gamejams/{id}/join").authenticated()
 
                                 // Email functionality
-                                .requestMatchers("/send").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/send").hasRole("ADMIN")
 
                                 .anyRequest().denyAll()
                 )

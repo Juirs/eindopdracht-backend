@@ -97,36 +97,7 @@ public class GameReview {
         this.downvotes = downvotes;
     }
 
-    // Simplified methods
-    public int getUpvoteCount() {
-        return upvotes;
-    }
-
-    public int getDownvoteCount() {
-        return downvotes;
-    }
-
     public int getTotalScore() {
         return upvotes - downvotes;
-    }
-
-    public void addUpvote() {
-        this.upvotes++;
-    }
-
-    public void addDownvote() {
-        this.downvotes++;
-    }
-
-    public void removeUpvote() {
-        if (this.upvotes > 0) {
-            this.upvotes--;
-        }
-    }
-
-    public void removeDownvote() {
-        if (this.downvotes > 0) {
-            this.downvotes--;
-        }
     }
 }

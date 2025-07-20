@@ -62,6 +62,13 @@ public class SpringSecurityConfig {
                                 .requestMatchers(HttpMethod.PUT, "/games/**").hasAnyRole("ADMIN", "DEVELOPER")
                                 .requestMatchers(HttpMethod.DELETE, "/games/**").hasAnyRole("ADMIN", "DEVELOPER")
 
+                                .requestMatchers(HttpMethod.GET, "/games/*/reviews").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/games/*/reviews/*").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/games/*/reviews").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/games/*/reviews/*").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/games/*/reviews/*/upvote").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/games/*/reviews/*/downvote").authenticated()
+
                                 // UserProfile endpoints
                                 .requestMatchers(HttpMethod.GET, "/users/*/profile").authenticated()
                                 .requestMatchers(HttpMethod.PUT, "/users/*/profile").authenticated()
@@ -79,16 +86,6 @@ public class SpringSecurityConfig {
 
                                 // Role management
                                 .requestMatchers("/users/*/authorities/**").hasRole("ADMIN")
-
-                                // Review endpoints (future implementation)
-                                .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/reviews").authenticated()
-                                .requestMatchers(HttpMethod.PUT, "/reviews/**").authenticated()
-                                .requestMatchers(HttpMethod.DELETE, "/reviews/**").authenticated()
-
-                                // Vote endpoints (future implementation)
-                                .requestMatchers(HttpMethod.POST, "/reviews/*/vote").authenticated()
-                                .requestMatchers(HttpMethod.DELETE, "/reviews/*/vote").authenticated()
 
                                 // Game Jam endpoints (future implementation)
                                 .requestMatchers(HttpMethod.GET, "/gamejams/**").permitAll()

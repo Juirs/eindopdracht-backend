@@ -2,9 +2,9 @@ package com.example.eindopdrachtbackend.services;
 
 import com.example.eindopdrachtbackend.dtos.ReviewRequestDto;
 import com.example.eindopdrachtbackend.dtos.ReviewResponseDto;
-import com.example.eindopdrachtbackend.exceptions.BadRequestException;
 import com.example.eindopdrachtbackend.exceptions.CannotReviewTwiceException;
 import com.example.eindopdrachtbackend.exceptions.RecordNotFoundException;
+import com.example.eindopdrachtbackend.mappers.ReviewMapper;
 import com.example.eindopdrachtbackend.models.Game;
 import com.example.eindopdrachtbackend.models.GameReview;
 import com.example.eindopdrachtbackend.models.User;
@@ -30,13 +30,16 @@ public class ReviewService {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
     private final UserReviewVoteRepository userReviewVoteRepository;
+    private final ReviewMapper reviewMapper;
 
     public ReviewService(ReviewRepository reviewRepository, GameRepository gameRepository,
-                        UserRepository userRepository, UserReviewVoteRepository userReviewVoteRepository) {
+                        UserRepository userRepository, UserReviewVoteRepository userReviewVoteRepository,
+                        ReviewMapper reviewMapper) {
         this.reviewRepository = reviewRepository;
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.userReviewVoteRepository = userReviewVoteRepository;
+        this.reviewMapper = reviewMapper;
     }
 
     public List<ReviewResponseDto> getReviewsForGame(Long gameId) {
@@ -44,7 +47,7 @@ public class ReviewService {
                 .orElseThrow(() -> new RecordNotFoundException("Game with ID " + gameId + " not found"));
 
         return game.getReviews().stream()
-                .map(ReviewService::fromReview)
+                .map(reviewMapper::toResponseDto)
                 .toList();
     }
 
@@ -69,7 +72,7 @@ public class ReviewService {
         review.setReviewer(reviewer);
 
         GameReview savedReview = reviewRepository.save(review);
-        return fromReview(savedReview);
+        return reviewMapper.toResponseDto(savedReview);
     }
 
     public void deleteReview(Long reviewId, UserDetails currentUser) {
@@ -119,42 +122,22 @@ public class ReviewService {
         }
 
         GameReview updatedReview = reviewRepository.save(review);
-        return fromReview(updatedReview);
+        return reviewMapper.toResponseDto(updatedReview);
     }
 
     private void addVote(GameReview review, VoteType voteType) {
         if (voteType == VoteType.UPVOTE) {
-            review.addUpvote();
+            review.setUpvotes(review.getUpvotes() + 1);
         } else {
-            review.addDownvote();
+            review.setDownvotes(review.getDownvotes() + 1);
         }
     }
 
     private void removeVote(GameReview review, VoteType voteType) {
         if (voteType == VoteType.UPVOTE) {
-            review.removeUpvote();
+            review.setUpvotes(Math.max(0, review.getUpvotes() - 1));
         } else {
-            review.removeDownvote();
+            review.setDownvotes(Math.max(0, review.getDownvotes() - 1));
         }
-    }
-
-    // Entity to DTO mapping
-    public static ReviewResponseDto fromReview(GameReview review) {
-        ReviewResponseDto dto = new ReviewResponseDto();
-        dto.setId(review.getId());
-        dto.setRating(review.getRating());
-        dto.setComment(review.getComment());
-        dto.setReviewerUsername(review.getReviewer().getUsername());
-        dto.setGameId(review.getGame().getId());
-        dto.setGameTitle(review.getGame().getTitle());
-        dto.setUpvotes(review.getUpvotes());
-        dto.setDownvotes(review.getDownvotes());
-        dto.setTotalScore(review.getTotalScore());
-
-        if (review.getReviewer().getUserProfile() != null) {
-            dto.setReviewerAvatar(review.getReviewer().getUserProfile().getAvatar());
-        }
-
-        return dto;
     }
 }

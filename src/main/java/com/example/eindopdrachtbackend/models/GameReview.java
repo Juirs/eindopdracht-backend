@@ -2,8 +2,6 @@ package com.example.eindopdrachtbackend.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "game_reviews")
@@ -28,8 +26,11 @@ public class GameReview {
     @JoinColumn(name = "user_id", nullable = false)
     private User reviewer;
 
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ReviewVote> votes = new ArrayList<>();
+    @Column(name = "upvotes", nullable = false)
+    private int upvotes = 0;
+
+    @Column(name = "downvotes", nullable = false)
+    private int downvotes = 0;
 
     public GameReview() {}
 
@@ -80,27 +81,52 @@ public class GameReview {
         this.reviewer = reviewer;
     }
 
-    public List<ReviewVote> getVotes() {
-        return votes;
+    public int getUpvotes() {
+        return upvotes;
     }
 
-    public void setVotes(List<ReviewVote> votes) {
-        this.votes = votes;
+    public void setUpvotes(int upvotes) {
+        this.upvotes = upvotes;
     }
 
+    public int getDownvotes() {
+        return downvotes;
+    }
+
+    public void setDownvotes(int downvotes) {
+        this.downvotes = downvotes;
+    }
+
+    // Simplified methods
     public int getUpvoteCount() {
-        return votes != null ? (int) votes.stream()
-                .filter(vote -> vote.getVoteType() == VoteType.UPVOTE)
-                .count() : 0;
+        return upvotes;
     }
 
     public int getDownvoteCount() {
-        return votes != null ? (int) votes.stream()
-                .filter(vote -> vote.getVoteType() == VoteType.DOWNVOTE)
-                .count() : 0;
+        return downvotes;
     }
 
     public int getTotalScore() {
-        return getUpvoteCount() - getDownvoteCount();
+        return upvotes - downvotes;
+    }
+
+    public void addUpvote() {
+        this.upvotes++;
+    }
+
+    public void addDownvote() {
+        this.downvotes++;
+    }
+
+    public void removeUpvote() {
+        if (this.upvotes > 0) {
+            this.upvotes--;
+        }
+    }
+
+    public void removeDownvote() {
+        if (this.downvotes > 0) {
+            this.downvotes--;
+        }
     }
 }

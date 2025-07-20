@@ -2,11 +2,14 @@ package com.example.eindopdrachtbackend.services;
 
 import com.example.eindopdrachtbackend.dtos.UserRequestDto;
 import com.example.eindopdrachtbackend.dtos.UserResponseDto;
+import com.example.eindopdrachtbackend.mappers.UserMapper;
 import com.example.eindopdrachtbackend.models.Role;
 import com.example.eindopdrachtbackend.models.User;
 import com.example.eindopdrachtbackend.models.UserProfile;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
 import com.example.eindopdrachtbackend.utils.RandomStringGenerator;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,29 +24,26 @@ import java.util.Set;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, PasswordEncoder encoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder encoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.encoder = encoder;
+        this.userMapper = userMapper;
     }
 
     // READ OPERATIONS
     public List<UserResponseDto> getUsers() {
-        List<UserResponseDto> collection = new ArrayList<>();
-        List<User> list = userRepository.findAll();
-        for (User user : list) {
-            collection.add(fromUser(user));
-        }
-        return collection;
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(userMapper::toResponseDto)
+                .toList();
     }
 
     public UserResponseDto getUser(String username) {
-        Optional<User> user = userRepository.findById(username);
-        if (user.isPresent()) {
-            return fromUser(user.get());
-        } else {
-            throw new UsernameNotFoundException("User not found: " + username);
-        }
+        User user = userRepository.findById(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return userMapper.toResponseDto(user);
     }
 
     public boolean userExists(String username) {
@@ -88,24 +88,32 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void updatePassword(String username, String newPassword) {
-        if (!userRepository.existsById(username)) {
-            throw new UsernameNotFoundException("User not found: " + username);
+    public void changePassword(String username, String newPassword, UserDetails currentUser, EmailService emailService) {
+        if (!currentUser.getUsername().equals(username)) {
+            throw new AccessDeniedException("You can only change your own password");
         }
 
-        User user = userRepository.findById(username).get();
+        User user = userRepository.findById(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
         user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
-    }
 
-    public void enableUser(String username, boolean enabled) {
-        if (!userRepository.existsById(username)) {
-            throw new UsernameNotFoundException("User not found: " + username);
-        }
+        String subject = "Password Changed - IndieVerse";
+        String body = String.format(
+                """
+                        Hello %s,
+                        
+                        Your password has been successfully changed.
+                        
+                        If you did not make this change, please contact support immediately.
+                        
+                        Best regards,
+                        IndieVerse Team""",
+            user.getUsername()
+        );
 
-        User user = userRepository.findById(username).get();
-        user.setEnabled(enabled);
-        userRepository.save(user);
+        emailService.sendEmail(user.getEmail(), subject, body);
     }
 
     // DELETE OPERATION
@@ -153,26 +161,5 @@ public class UserService {
             throw new UsernameNotFoundException("User not found: " + username);
         }
         return user.get();
-    }
-
-    public static UserResponseDto fromUser(User user) {
-        var dto = new UserResponseDto();
-
-        dto.setUsername(user.getUsername());
-        dto.setEnabled(user.getEnabled());
-        dto.setApikey(user.getApikey());
-        dto.setEmail(user.getEmail());
-        dto.setRoles(user.getRoles());
-
-        if (user.getUserProfile() != null) {
-            dto.setAvatar(user.getUserProfile().getAvatar());
-            dto.setBio(user.getUserProfile().getBio());
-            dto.setPreferredGenres(user.getUserProfile().getPreferredGenres());
-        }
-
-        dto.setGamesCreated(user.getGames() != null ? user.getGames().size() : 0);
-        dto.setReviewsWritten(user.getReviews() != null ? user.getReviews().size() : 0);
-
-        return dto;
     }
 }

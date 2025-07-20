@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 public class GameRequestDto {
 
     @NotBlank(message = "Title is required")
-    @Size(max = 20, message = "Title cannot exceed 100 characters")
+    @Size(max = 100, message = "Title cannot exceed 100 characters")
     private String title;
 
     @Size(max = 1000, message = "Description cannot exceed 1000 characters")

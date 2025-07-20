@@ -32,7 +32,6 @@ public class GameJamParticipant {
     @Column(name = "submission_date")
     private LocalDateTime submissionDate;
 
-    // Constructors
     public GameJamParticipant() {}
 
     public GameJamParticipant(GameJam gameJam, User user) {
@@ -40,21 +39,6 @@ public class GameJamParticipant {
         this.user = user;
     }
 
-    // Business logic methods, will be moved to a service layer once I have one
-    public boolean hasSubmitted() {
-        return submission != null;
-    }
-
-    public void submitGame(Game game) {
-        this.submission = game;
-        this.submissionDate = LocalDateTime.now();
-    }
-
-    public boolean canSubmit() {
-        return gameJam.isCurrentlyActive() && !hasSubmitted();
-    }
-
-    // Getters and Setters
     public Long getId() {
         return id;
     }

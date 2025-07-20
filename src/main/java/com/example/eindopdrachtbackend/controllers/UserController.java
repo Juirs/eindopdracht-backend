@@ -1,9 +1,11 @@
 package com.example.eindopdrachtbackend.controllers;
 
+import com.example.eindopdrachtbackend.dtos.ChangePasswordRequestDto;
 import com.example.eindopdrachtbackend.dtos.RoleRequestDto;
 import com.example.eindopdrachtbackend.dtos.UserRequestDto;
 import com.example.eindopdrachtbackend.dtos.UserResponseDto;
 import com.example.eindopdrachtbackend.exceptions.BadRequestException;
+import com.example.eindopdrachtbackend.services.EmailService;
 import com.example.eindopdrachtbackend.services.UserService;
 import com.example.eindopdrachtbackend.utils.SecurityUtils;
 import jakarta.validation.Valid;
@@ -22,9 +24,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final EmailService emailService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, EmailService emailService) {
         this.userService = userService;
+        this.emailService = emailService;
     }
 
     @GetMapping(value = "")
@@ -103,5 +107,13 @@ public class UserController {
                                                     @PathVariable("authority") String authority) {
         userService.removeRole(username, authority);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/{username}/change-password")
+    public ResponseEntity<String> changePassword(@PathVariable("username") String username,
+                                                 @Valid @RequestBody ChangePasswordRequestDto requestDto,
+                                                 @AuthenticationPrincipal UserDetails currentUser) {
+        userService.changePassword(username, requestDto.getNewPassword(), currentUser, emailService);
+        return ResponseEntity.ok("Password changed successfully. A confirmation email has been sent.");
     }
 }

@@ -4,9 +4,9 @@ import com.example.eindopdrachtbackend.dtos.GameRequestDto;
 import com.example.eindopdrachtbackend.dtos.GameResponseDto;
 import com.example.eindopdrachtbackend.exceptions.NameTooLongException;
 import com.example.eindopdrachtbackend.exceptions.RecordNotFoundException;
+import com.example.eindopdrachtbackend.mappers.GameMapper;
 import com.example.eindopdrachtbackend.models.Game;
 import com.example.eindopdrachtbackend.models.GameGenre;
-import com.example.eindopdrachtbackend.models.GameReview;
 import com.example.eindopdrachtbackend.models.User;
 import com.example.eindopdrachtbackend.repositories.GameRepository;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
@@ -22,10 +22,12 @@ import java.util.List;
 public class GameService {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
+    private final GameMapper gameMapper;
 
-    public GameService(GameRepository gameRepository, UserRepository userRepository) {
+    public GameService(GameRepository gameRepository, UserRepository userRepository, GameMapper gameMapper) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
+        this.gameMapper = gameMapper;
     }
 
     public List<GameResponseDto> getAllGamesOrByCategory(GameGenre category) {
@@ -34,14 +36,14 @@ public class GameService {
                 : gameRepository.findAll();
 
         return games.stream()
-                .map(GameService::fromGame)
+                .map(gameMapper::toResponseDto)
                 .toList();
     }
 
     public GameResponseDto getGameById(Long id) {
         Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new RecordNotFoundException("Game with ID " + id + " not found."));
-        return fromGame(game);
+        return gameMapper.toResponseDto(game);
     }
 
     public GameResponseDto createGame(GameRequestDto gameRequestDto, UserDetails currentUser) {
@@ -62,7 +64,7 @@ public class GameService {
 
         Game savedGame = gameRepository.save(game);
 
-        return fromGame(savedGame);
+        return gameMapper.toResponseDto(savedGame);
     }
 
     public GameResponseDto updateGame(Long id, GameRequestDto gameRequestDto, UserDetails currentUser) {
@@ -84,7 +86,7 @@ public class GameService {
 
         gameRepository.save(existingGame);
 
-        return fromGame(existingGame);
+        return gameMapper.toResponseDto(existingGame);
     }
 
     public void deleteGame(Long id, UserDetails currentUser) {
@@ -100,48 +102,5 @@ public class GameService {
         }
 
         gameRepository.deleteById(id);
-    }
-
-    // Entity to DTO mapping
-    public static GameResponseDto fromGame(Game game) {
-        GameResponseDto dto = new GameResponseDto();
-        dto.setId(game.getId());
-        dto.setTitle(game.getTitle());
-        dto.setDescription(game.getDescription());
-        dto.setCategory(game.getCategory());
-        dto.setFilePath(game.getFilePath());
-        dto.setDeveloperUsername(game.getDeveloper().getUsername());
-
-        addReviewStatistics(dto, game);
-
-        return dto;
-    }
-
-    private static void addReviewStatistics(GameResponseDto dto, Game game) {
-        if (game.getReviews() == null || game.getReviews().isEmpty()) {
-            dto.setReviewCount(0);
-            dto.setAverageRating(null);
-            return;
-        }
-
-        dto.setReviewCount(game.getReviews().size());
-
-        double averageRating = calculateAverageRating(game);
-        dto.setAverageRating(averageRating);
-    }
-
-    public static double calculateAverageRating(Game game) {
-        if (game.getReviews() == null || game.getReviews().isEmpty()) {
-            return 0.0;
-        }
-
-        return game.getReviews().stream()
-                .mapToInt(GameReview::getRating)
-                .average()
-                .orElse(0.0);
-    }
-
-    public static int getReviewCount(Game game) {
-        return game.getReviews() != null ? game.getReviews().size() : 0;
     }
 }

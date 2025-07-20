@@ -1,59 +1,31 @@
-package com.example.eindopdrachtbackend.models;
-
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
+package com.example.eindopdrachtbackend.dtos;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
-@Entity
-@Table(name = "game_jams")
-public class GameJam {
+public class GameJamResponseDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, length = 100)
     private String name;
-
-    @Column(nullable = false, length = 1000)
     private String description;
-
-    @Column(nullable = false, length = 1000)
     private String rules;
-
-    @Column(nullable = false, length = 100)
     private String theme;
-
     private String gameJamImageUrl;
-
-    @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
-
-    @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    private int maxParticipants;
+    private int currentParticipants;
+    private Boolean isActive;
+    private boolean isCurrentlyActive;
+    private boolean canAcceptParticipants;
 
-    @Column(name = "max_participants", nullable = false)
-    private int maxParticipants = 100;
+    public GameJamResponseDto() {}
 
-    @Column(name = "current_participants")
-    private int currentParticipants = 0;
-
-    @Column(nullable = false)
-    private Boolean isActive = true;
-
-    @OneToMany(mappedBy = "gameJam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<GameJamParticipant> participants = new HashSet<>();
-
-    public GameJam() {}
-
-    public GameJam(String name, String description, String rules, String theme, String gameJamImageUrl, LocalDateTime startDate, LocalDateTime endDate) {
+    public GameJamResponseDto(Long id, String name, String description, String rules, String theme,
+                             String gameJamImageUrl, LocalDateTime startDate, LocalDateTime endDate,
+                             LocalDateTime createdAt, int maxParticipants, int currentParticipants,
+                             Boolean isActive, boolean isCurrentlyActive, boolean canAcceptParticipants) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.rules = rules;
@@ -61,6 +33,12 @@ public class GameJam {
         this.gameJamImageUrl = gameJamImageUrl;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.createdAt = createdAt;
+        this.maxParticipants = maxParticipants;
+        this.currentParticipants = currentParticipants;
+        this.isActive = isActive;
+        this.isCurrentlyActive = isCurrentlyActive;
+        this.canAcceptParticipants = canAcceptParticipants;
     }
 
     public Long getId() {
@@ -151,19 +129,27 @@ public class GameJam {
         this.currentParticipants = currentParticipants;
     }
 
-    public Boolean getActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setActive(Boolean active) {
-        isActive = active;
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
-    public Set<GameJamParticipant> getParticipants() {
-        return participants;
+    public boolean isCurrentlyActive() {
+        return isCurrentlyActive;
     }
 
-    public void setParticipants(Set<GameJamParticipant> participants) {
-        this.participants = participants;
+    public void setCurrentlyActive(boolean currentlyActive) {
+        isCurrentlyActive = currentlyActive;
+    }
+
+    public boolean isCanAcceptParticipants() {
+        return canAcceptParticipants;
+    }
+
+    public void setCanAcceptParticipants(boolean canAcceptParticipants) {
+        this.canAcceptParticipants = canAcceptParticipants;
     }
 }

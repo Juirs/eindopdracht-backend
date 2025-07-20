@@ -2,6 +2,7 @@ package com.example.eindopdrachtbackend.services;
 
 import com.example.eindopdrachtbackend.dtos.UserProfileRequestDto;
 import com.example.eindopdrachtbackend.dtos.UserProfileResponseDto;
+import com.example.eindopdrachtbackend.mappers.UserProfileMapper;
 import com.example.eindopdrachtbackend.models.User;
 import com.example.eindopdrachtbackend.models.UserProfile;
 import com.example.eindopdrachtbackend.repositories.UserProfileRepository;
@@ -17,13 +18,16 @@ public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
     private final AvatarService avatarService;
+    private final UserProfileMapper userProfileMapper;
 
     public UserProfileService(UserProfileRepository userProfileRepository,
                             UserRepository userRepository,
-                            AvatarService avatarService) {
+                            AvatarService avatarService,
+                            UserProfileMapper userProfileMapper) {
         this.userProfileRepository = userProfileRepository;
         this.userRepository = userRepository;
         this.avatarService = avatarService;
+        this.userProfileMapper = userProfileMapper;
     }
 
     public UserProfileResponseDto getUserProfile(String username) {
@@ -31,7 +35,7 @@ public class UserProfileService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
         UserProfile profile = user.getUserProfile();
-        return fromUserProfile(profile);
+        return userProfileMapper.toResponseDto(profile);
     }
 
     public UserProfileResponseDto updateUserProfile(String username, UserProfileRequestDto requestDto) {
@@ -43,7 +47,7 @@ public class UserProfileService {
         updateProfileFromDto(profile, requestDto);
         UserProfile savedProfile = userProfileRepository.save(profile);
 
-        return fromUserProfile(savedProfile);
+        return userProfileMapper.toResponseDto(savedProfile);
     }
 
     public UserProfileResponseDto uploadAvatar(String username, MultipartFile avatarFile) throws IOException {
@@ -60,7 +64,7 @@ public class UserProfileService {
         profile.setAvatar(avatarPath);
 
         UserProfile savedProfile = userProfileRepository.save(profile);
-        return fromUserProfile(savedProfile);
+        return userProfileMapper.toResponseDto(savedProfile);
     }
 
     private void updateProfileFromDto(UserProfile profile, UserProfileRequestDto requestDto) {
@@ -73,18 +77,5 @@ public class UserProfileService {
         if (requestDto.getPreferredGenres() != null) {
             profile.setPreferredGenres(requestDto.getPreferredGenres());
         }
-    }
-
-    // Entity to DTO mapping
-    public static UserProfileResponseDto fromUserProfile(UserProfile profile) {
-        UserProfileResponseDto dto = new UserProfileResponseDto();
-
-        dto.setId(profile.getId());
-        dto.setUsername(profile.getUsername());
-        dto.setAvatar(profile.getAvatar());
-        dto.setBio(profile.getBio());
-        dto.setPreferredGenres(profile.getPreferredGenres());
-
-        return dto;
     }
 }

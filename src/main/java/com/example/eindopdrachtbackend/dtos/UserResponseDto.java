@@ -1,7 +1,6 @@
 package com.example.eindopdrachtbackend.dtos;
 
 import com.example.eindopdrachtbackend.models.GameGenre;
-import com.example.eindopdrachtbackend.models.Role;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Set;
@@ -17,7 +16,7 @@ public class UserResponseDto {
     private Set<GameGenre> preferredGenres;
 
     @JsonSerialize
-    private Set<Role> roles;
+    private Set<String> roles;
 
     private int gamesCreated;
     private int reviewsWritten;
@@ -78,11 +77,11 @@ public class UserResponseDto {
         this.preferredGenres = preferredGenres;
     }
 
-    public Set<Role> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(Set<String> roles) {
         this.roles = roles;
     }
 

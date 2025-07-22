@@ -83,10 +83,10 @@ public class SpringSecurityConfig {
 
                                 .requestMatchers(HttpMethod.GET, "/games/{gameId}/reviews").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/games/{gameId}/reviews").authenticated()
-                                .requestMatchers(HttpMethod.DELETE, "/reviews/{reviewId}").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/games/reviews/{reviewId}").authenticated()
 
-                                .requestMatchers(HttpMethod.POST, "/reviews/{reviewId}/upvote").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/reviews/{reviewId}/downvote").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/games/reviews/{reviewId}/upvote").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/games/reviews/{reviewId}/downvote").authenticated()
 
                                 // GameJam endpoints
                                 .requestMatchers(HttpMethod.GET, "/gamejams").permitAll()

@@ -4,8 +4,10 @@ import com.example.eindopdrachtbackend.dtos.UserRequestDto;
 import com.example.eindopdrachtbackend.dtos.UserResponseDto;
 import com.example.eindopdrachtbackend.mappers.UserMapper;
 import com.example.eindopdrachtbackend.models.Role;
+import com.example.eindopdrachtbackend.models.RoleKey;
 import com.example.eindopdrachtbackend.models.User;
 import com.example.eindopdrachtbackend.models.UserProfile;
+import com.example.eindopdrachtbackend.repositories.RoleRepository;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
 import com.example.eindopdrachtbackend.utils.RandomStringGenerator;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,8 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -23,16 +25,19 @@ import java.util.Set;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, PasswordEncoder encoder, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.userMapper = userMapper;
     }
 
     // READ OPERATIONS
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
@@ -40,6 +45,7 @@ public class UserService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public UserResponseDto getUser(String username) {
         User user = userRepository.findById(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
@@ -137,8 +143,17 @@ public class UserService {
         if (!userRepository.existsById(username)) {
             throw new UsernameNotFoundException("User not found: " + username);
         }
+
         User user = userRepository.findById(username).get();
-        user.addRole(new Role(username, authority));
+
+        RoleKey roleKey = new RoleKey(username, authority);
+        Role role = roleRepository.findById(roleKey)
+                .orElseGet(() -> {
+                    Role newRole = new Role(username, authority);
+                    return roleRepository.save(newRole);
+                });
+
+        user.addRole(role);
         userRepository.save(user);
     }
 

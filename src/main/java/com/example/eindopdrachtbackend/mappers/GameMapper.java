@@ -18,7 +18,10 @@ public class GameMapper {
         dto.setTitle(game.getTitle());
         dto.setDescription(game.getDescription());
         dto.setCategory(game.getCategory());
-        dto.setFilePath(game.getFilePath());
+        dto.setGameFilePath(game.getGameFilePath());
+        dto.setImageUrl(game.getImageUrl());
+        dto.setTrailerUrl(game.getTrailerUrl());
+        dto.setScreenshots(game.getScreenshots()); // Now properly maps List<String>
         dto.setDeveloperUsername(game.getDeveloper().getUsername());
 
         addReviewStatistics(dto, game);

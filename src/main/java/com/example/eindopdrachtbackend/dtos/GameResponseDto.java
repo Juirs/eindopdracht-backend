@@ -2,13 +2,18 @@ package com.example.eindopdrachtbackend.dtos;
 
 import com.example.eindopdrachtbackend.models.GameGenre;
 
+import java.util.List;
+
 public class GameResponseDto {
 
     private Long id;
     private String title;
     private String description;
     private GameGenre category;
-    private String filePath;
+    private String gameFilePath;
+    private String imageUrl;
+    private String trailerUrl;
+    private List<String> screenshots;
     private String developerUsername;
     private int reviewCount;
     private Double averageRating;
@@ -16,12 +21,16 @@ public class GameResponseDto {
     public GameResponseDto() {}
 
     public GameResponseDto(Long id, String title, String description, GameGenre category,
-                          String filePath, String developerUsername) {
+                          String gameFilePath, String imageUrl, String trailerUrl,
+                          List<String> screenshots, String developerUsername) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.category = category;
-        this.filePath = filePath;
+        this.gameFilePath = gameFilePath;
+        this.imageUrl = imageUrl;
+        this.trailerUrl = trailerUrl;
+        this.screenshots = screenshots;
         this.developerUsername = developerUsername;
     }
 
@@ -57,12 +66,36 @@ public class GameResponseDto {
         this.category = category;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getGameFilePath() {
+        return gameFilePath;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setGameFilePath(String gameFilePath) {
+        this.gameFilePath = gameFilePath;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getTrailerUrl() {
+        return trailerUrl;
+    }
+
+    public void setTrailerUrl(String trailerUrl) {
+        this.trailerUrl = trailerUrl;
+    }
+
+    public List<String> getScreenshots() {
+        return screenshots;
+    }
+
+    public void setScreenshots(List<String> screenshots) {
+        this.screenshots = screenshots;
     }
 
     public String getDeveloperUsername() {

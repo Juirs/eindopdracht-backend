@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 public class GameRequestDto {
 
     @NotBlank(message = "Title is required")
@@ -17,16 +19,25 @@ public class GameRequestDto {
     @NotNull(message = "Category is required")
     private GameGenre category;
 
-    @NotBlank(message = "File path is required")
-    private String filePath;
+    private String gameFilePath;
+
+    private String imageUrl;
+
+    private String trailerUrl;
+
+    private List<String> screenshots;
 
     public GameRequestDto() {}
 
-    public GameRequestDto(String title, String description, GameGenre category, String filePath) {
+    public GameRequestDto(String title, String description, GameGenre category, String gameFilePath,
+                         String imageUrl, String trailerUrl, List<String> screenshots) {
         this.title = title;
         this.description = description;
         this.category = category;
-        this.filePath = filePath;
+        this.gameFilePath = gameFilePath;
+        this.imageUrl = imageUrl;
+        this.trailerUrl = trailerUrl;
+        this.screenshots = screenshots;
     }
 
     public String getTitle() {
@@ -53,11 +64,35 @@ public class GameRequestDto {
         this.category = category;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getGameFilePath() {
+        return gameFilePath;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setGameFilePath(String gameFilePath) {
+        this.gameFilePath = gameFilePath;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getTrailerUrl() {
+        return trailerUrl;
+    }
+
+    public void setTrailerUrl(String trailerUrl) {
+        this.trailerUrl = trailerUrl;
+    }
+
+    public List<String> getScreenshots() {
+        return screenshots;
+    }
+
+    public void setScreenshots(List<String> screenshots) {
+        this.screenshots = screenshots;
     }
 }

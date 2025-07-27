@@ -10,8 +10,6 @@ import com.example.eindopdrachtbackend.models.UserProfile;
 import com.example.eindopdrachtbackend.repositories.RoleRepository;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
 import com.example.eindopdrachtbackend.utils.RandomStringGenerator;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -57,7 +55,7 @@ public class UserService {
     }
 
     // CREATE OPERATION
-    public String createUser(UserRequestDto userRequestDto) {
+    public String createUser(UserRequestDto userRequestDto, EmailService emailService) {
         if (userExists(userRequestDto.getUsername())) {
             throw new RuntimeException("Username already exists: " + userRequestDto.getUsername());
         }
@@ -80,6 +78,22 @@ public class UserService {
         User savedUser = userRepository.save(newUser);
         addRole(savedUser.getUsername(), "USER");
 
+        String subject = "User Registered - IndieVerse";
+        String body = String.format(
+                """
+                        Hello %s,
+                        
+                        Thank you for registering on our website.
+                        
+                        If you did not make this request, please contact support immediately.
+                        
+                        Best regards,
+                        IndieVerse Team""",
+                savedUser.getUsername()
+        );
+
+        emailService.sendEmail(savedUser.getEmail(), subject, body);
+
         return savedUser.getUsername();
     }
 
@@ -94,11 +108,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void changePassword(String username, String newPassword, UserDetails currentUser, EmailService emailService) {
-        if (!currentUser.getUsername().equals(username)) {
-            throw new AccessDeniedException("You can only change your own password");
-        }
-
+    public void changePasswordWithoutAuth(String username, String newPassword, EmailService emailService) {
         User user = userRepository.findById(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 

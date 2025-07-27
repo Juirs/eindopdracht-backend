@@ -1,8 +1,5 @@
 package com.example.eindopdrachtbackend.dtos;
 
-import com.example.eindopdrachtbackend.models.GameGenre;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.Set;
 
 public class UserResponseDto {
@@ -11,15 +8,22 @@ public class UserResponseDto {
     private String email;
     private Boolean enabled;
     private String apikey;
-    private String avatar;
-    private String bio;
-    private Set<GameGenre> preferredGenres;
-
-    @JsonSerialize
     private Set<String> roles;
-
     private int gamesCreated;
     private int reviewsWritten;
+
+    public UserResponseDto() {}
+
+    public UserResponseDto(String username, String email, Boolean enabled, String apikey,
+                          Set<String> roles, int gamesCreated, int reviewsWritten) {
+        this.username = username;
+        this.email = email;
+        this.enabled = enabled;
+        this.apikey = apikey;
+        this.roles = roles;
+        this.gamesCreated = gamesCreated;
+        this.reviewsWritten = reviewsWritten;
+    }
 
     public String getUsername() {
         return username;
@@ -51,30 +55,6 @@ public class UserResponseDto {
 
     public void setApikey(String apikey) {
         this.apikey = apikey;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public Set<GameGenre> getPreferredGenres() {
-        return preferredGenres;
-    }
-
-    public void setPreferredGenres(Set<GameGenre> preferredGenres) {
-        this.preferredGenres = preferredGenres;
     }
 
     public Set<String> getRoles() {

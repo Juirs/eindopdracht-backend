@@ -17,16 +17,16 @@ import java.io.IOException;
 public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
-    private final AvatarService avatarService;
+    private final SimpleFileService simpleFileService;
     private final UserProfileMapper userProfileMapper;
 
     public UserProfileService(UserProfileRepository userProfileRepository,
                             UserRepository userRepository,
-                            AvatarService avatarService,
+                            SimpleFileService simpleFileService,
                             UserProfileMapper userProfileMapper) {
         this.userProfileRepository = userProfileRepository;
         this.userRepository = userRepository;
-        this.avatarService = avatarService;
+        this.simpleFileService = simpleFileService;
         this.userProfileMapper = userProfileMapper;
     }
 
@@ -57,10 +57,10 @@ public class UserProfileService {
         UserProfile profile = user.getUserProfile();
 
         if (profile.getAvatar() != null && !profile.getAvatar().isEmpty()) {
-            avatarService.deleteAvatar(profile.getAvatar());
+            simpleFileService.deleteFile(profile.getAvatar());
         }
 
-        String avatarPath = avatarService.uploadAvatar(avatarFile, username);
+        String avatarPath = simpleFileService.saveAvatar(avatarFile);
         profile.setAvatar(avatarPath);
 
         UserProfile savedProfile = userProfileRepository.save(profile);

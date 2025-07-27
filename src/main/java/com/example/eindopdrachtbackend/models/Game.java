@@ -2,6 +2,7 @@ package com.example.eindopdrachtbackend.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,8 +23,20 @@ public class Game {
     @Column(nullable = false)
     private GameGenre category;
 
-    @Column(name = "file_path", nullable = false)
-    private String filePath;
+    @Column(name = "game_file_path")
+    private String gameFilePath;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "trailer_url")
+    private String trailerUrl;
+
+    @ElementCollection
+    @CollectionTable(name = "game_screenshots", joinColumns = @JoinColumn(name = "game_id"))
+    @Column(name = "screenshot_url")
+    @OrderColumn(name = "screenshot_order")
+    private List<String> screenshots = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "developer_id", nullable = false)
@@ -31,7 +44,7 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<GameReview> reviews;
+    private List<GameReview> reviews = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -65,12 +78,36 @@ public class Game {
         this.category = category;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getGameFilePath() {
+        return gameFilePath;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setGameFilePath(String gameFilePath) {
+        this.gameFilePath = gameFilePath;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getTrailerUrl() {
+        return trailerUrl;
+    }
+
+    public void setTrailerUrl(String trailerUrl) {
+        this.trailerUrl = trailerUrl;
+    }
+
+    public List<String> getScreenshots() {
+        return screenshots;
+    }
+
+    public void setScreenshots(List<String> screenshots) {
+        this.screenshots = screenshots;
     }
 
     public User getDeveloper() {

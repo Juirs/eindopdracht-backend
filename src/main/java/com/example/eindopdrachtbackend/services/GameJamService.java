@@ -73,7 +73,7 @@ public class GameJamService {
         String username = currentUser.getUsername();
 
         if (gameJamParticipantRepository.findByGameJamIdAndUserUsername(gameJamId, username).isPresent()) {
-            return gameJamMapper.toResponseDto(gameJam);
+            throw new RuntimeException("You have already joined this game jam");
         }
 
         User user = userRepository.findById(username)

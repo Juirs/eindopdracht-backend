@@ -52,7 +52,7 @@ public class UserController {
     @PostMapping(value = "/register")
     public ResponseEntity<UserResponseDto> registerUser(@Valid @RequestBody UserRequestDto dto,
                                                         @RequestParam(value = "isDeveloper", defaultValue = "false") boolean isDeveloper) {
-        String newUsername = userService.createUser(dto);
+        String newUsername = userService.createUser(dto, emailService);
 
         if (isDeveloper) {
             userService.addRole(newUsername, "DEVELOPER");
@@ -111,9 +111,8 @@ public class UserController {
 
     @PutMapping(value = "/{username}/change-password")
     public ResponseEntity<String> changePassword(@PathVariable("username") String username,
-                                                 @Valid @RequestBody ChangePasswordRequestDto requestDto,
-                                                 @AuthenticationPrincipal UserDetails currentUser) {
-        userService.changePassword(username, requestDto.getNewPassword(), currentUser, emailService);
+                                                 @Valid @RequestBody ChangePasswordRequestDto requestDto) {
+        userService.changePasswordWithoutAuth(username, requestDto.getNewPassword(), emailService);
         return ResponseEntity.ok("Password changed successfully. A confirmation email has been sent.");
     }
 }

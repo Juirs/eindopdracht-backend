@@ -5,7 +5,7 @@ import com.example.eindopdrachtbackend.dtos.UserProfileResponseDto;
 import com.example.eindopdrachtbackend.models.User;
 import com.example.eindopdrachtbackend.models.UserProfile;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
-import com.example.eindopdrachtbackend.services.AvatarService;
+import com.example.eindopdrachtbackend.services.SimpleFileService;
 import com.example.eindopdrachtbackend.services.UserProfileService;
 import com.example.eindopdrachtbackend.utils.SecurityUtils;
 import jakarta.validation.Valid;
@@ -32,23 +32,16 @@ public class UserProfileController {
 
     private final UserProfileService userProfileService;
     private final UserRepository userRepository;
-    private final AvatarService avatarService;
+    private final SimpleFileService simpleFileService;
 
-    public UserProfileController(UserProfileService userProfileService, UserRepository userRepository, AvatarService avatarService) {
+    public UserProfileController(UserProfileService userProfileService, UserRepository userRepository, SimpleFileService simpleFileService) {
         this.userProfileService = userProfileService;
         this.userRepository = userRepository;
-        this.avatarService = avatarService;
+        this.simpleFileService = simpleFileService;
     }
 
     @GetMapping
-    public ResponseEntity<UserProfileResponseDto> getUserProfile(
-            @PathVariable String username,
-            @AuthenticationPrincipal UserDetails currentUser) {
-
-        if (!SecurityUtils.isOwnerOrAdmin(currentUser, username)) {
-            throw new AccessDeniedException("You can only access your own profile");
-        }
-
+    public ResponseEntity<UserProfileResponseDto> getUserProfile(@PathVariable String username) {
         UserProfileResponseDto profile = userProfileService.getUserProfile(username);
         return ResponseEntity.ok(profile);
     }
@@ -92,7 +85,7 @@ public class UserProfileController {
             return ResponseEntity.notFound().build();
         }
 
-        Path path = avatarService.getAvatarPath(profile.getAvatar());
+        Path path = simpleFileService.getFilePath(profile.getAvatar());
 
         return getResourceResponseEntity(path);
     }

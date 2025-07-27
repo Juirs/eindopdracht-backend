@@ -30,12 +30,6 @@ public class UserMapper {
             dto.setRoles(roleNames);
         }
 
-        if (user.getUserProfile() != null) {
-            dto.setAvatar(user.getUserProfile().getAvatar());
-            dto.setBio(user.getUserProfile().getBio());
-            dto.setPreferredGenres(user.getUserProfile().getPreferredGenres());
-        }
-
         dto.setGamesCreated(user.getGames() != null ? user.getGames().size() : 0);
         dto.setReviewsWritten(user.getReviews() != null ? user.getReviews().size() : 0);
 

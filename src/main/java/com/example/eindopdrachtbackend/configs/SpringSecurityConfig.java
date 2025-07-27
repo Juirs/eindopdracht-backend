@@ -29,7 +29,6 @@ public class SpringSecurityConfig {
     }
 
 
-    // Authenticatie met customUserDetailsService en passwordEncoder
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
         var auth = new DaoAuthenticationProvider();
@@ -40,7 +39,6 @@ public class SpringSecurityConfig {
 
 
 
-    // Authorizatie met jwt
     @Bean
     protected SecurityFilterChain filter (HttpSecurity http) throws Exception {
 
@@ -57,11 +55,11 @@ public class SpringSecurityConfig {
 
                                 // User registration and management
                                 .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/users/{username}/change-password").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/users/{username}").authenticated()
                                 .requestMatchers(HttpMethod.PUT, "/users/{username}").authenticated()
                                 .requestMatchers(HttpMethod.DELETE, "/users/{username}").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.PUT, "/users/{username}/change-password").authenticated()
 
                                 // Role/Authority management
                                 .requestMatchers(HttpMethod.GET, "/users/{username}/authorities").hasRole("ADMIN")
@@ -69,7 +67,7 @@ public class SpringSecurityConfig {
                                 .requestMatchers(HttpMethod.DELETE, "/users/{username}/authorities/{authority}").hasRole("ADMIN")
 
                                 // UserProfile endpoints
-                                .requestMatchers(HttpMethod.GET, "/users/{username}/profile").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/users/{username}/profile").permitAll()
                                 .requestMatchers(HttpMethod.PUT, "/users/{username}/profile").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/users/{username}/profile/avatar").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/users/{username}/profile/avatar").permitAll()
@@ -77,7 +75,14 @@ public class SpringSecurityConfig {
                                 // Game endpoints
                                 .requestMatchers(HttpMethod.GET, "/games").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/games/{id}").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/games/{id}/image").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/games/{id}/screenshot/{screenshotIndex}").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/games/{id}/download").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/games").hasAnyRole("ADMIN", "DEVELOPER")
+                                .requestMatchers(HttpMethod.POST, "/games/with-files").hasAnyRole("ADMIN", "DEVELOPER")
+                                .requestMatchers(HttpMethod.POST, "/games/{id}/image").hasAnyRole("ADMIN", "DEVELOPER")
+                                .requestMatchers(HttpMethod.POST, "/games/{id}/game-file").hasAnyRole("ADMIN", "DEVELOPER")
+                                .requestMatchers(HttpMethod.POST, "/games/{id}/screenshots").hasAnyRole("ADMIN", "DEVELOPER")
                                 .requestMatchers(HttpMethod.PUT, "/games/{id}").hasAnyRole("ADMIN", "DEVELOPER")
                                 .requestMatchers(HttpMethod.DELETE, "/games/{id}").hasAnyRole("ADMIN", "DEVELOPER")
 

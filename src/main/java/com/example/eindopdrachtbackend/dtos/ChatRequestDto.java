@@ -1,6 +1,7 @@
 package com.example.eindopdrachtbackend.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class ChatRequestDto {
 
@@ -8,6 +9,7 @@ public class ChatRequestDto {
     private String recipientUsername;
 
     @NotBlank(message = "Message content cannot be empty")
+    @Size(max = 4000, message = "Message content cannot exceed 4000 characters")
     private String content;
 
     public ChatRequestDto() {

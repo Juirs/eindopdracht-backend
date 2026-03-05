@@ -5,6 +5,7 @@ import com.example.eindopdrachtbackend.mappers.ChatMapper;
 import com.example.eindopdrachtbackend.models.ChatMessage;
 import com.example.eindopdrachtbackend.repositories.ChatMessageRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class ChatMessageService {
         this.chatMapper = chatMapper;
     }
 
+    @Transactional
     public ChatResponseDto saveMessage(ChatMessage chatMessage) {
         ChatMessage saved = chatMessageRepository.save(chatMessage);
         return chatMapper.toResponseDto(saved);

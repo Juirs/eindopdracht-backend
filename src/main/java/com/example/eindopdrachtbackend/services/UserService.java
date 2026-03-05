@@ -10,6 +10,8 @@ import com.example.eindopdrachtbackend.models.UserProfile;
 import com.example.eindopdrachtbackend.repositories.RoleRepository;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
 import com.example.eindopdrachtbackend.utils.RandomStringGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ import java.util.Set;
 @Service
 @Transactional
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
@@ -100,7 +104,7 @@ public class UserService {
         try {
             emailService.sendEmail(savedUser.getEmail(), subject, body);
         } catch (Exception e) {
-            System.err.println("Failed to send registration email: " + e.getMessage());
+            logger.warn("Failed to send registration email to {}: {}", savedUser.getEmail(), e.getMessage());
         }
 
         return savedUser.getUsername();

@@ -2,8 +2,6 @@ package com.example.eindopdrachtbackend.services;
 
 import com.example.eindopdrachtbackend.dtos.GameJamRequestDto;
 import com.example.eindopdrachtbackend.dtos.GameJamResponseDto;
-import com.example.eindopdrachtbackend.models.GameJam;
-import com.example.eindopdrachtbackend.repositories.GameJamRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,9 +18,6 @@ class GameJamServiceIntegrationTest {
 
     @Autowired
     private GameJamService gameJamService;
-
-    @Autowired
-    private GameJamRepository gameJamRepository;
 
     @Test
     @Transactional

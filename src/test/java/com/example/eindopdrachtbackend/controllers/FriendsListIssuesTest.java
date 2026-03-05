@@ -1,6 +1,7 @@
 package com.example.eindopdrachtbackend.controllers;
 
 import com.example.eindopdrachtbackend.dtos.FriendsListRequestDto;
+import com.example.eindopdrachtbackend.models.FriendshipStatus;
 import com.example.eindopdrachtbackend.models.User;
 import com.example.eindopdrachtbackend.repositories.FriendsListRepository;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
@@ -66,14 +67,14 @@ public class FriendsListIssuesTest {
     void getPendingRequests_ShouldShowSenderUsername() throws Exception {
         // Henk sends a friend request to Jim
         com.example.eindopdrachtbackend.models.FriendsList friendship = 
-            new com.example.eindopdrachtbackend.models.FriendsList(userHenk, userJim, "PENDING");
+            new com.example.eindopdrachtbackend.models.FriendsList(userHenk, userJim, FriendshipStatus.PENDING.name());
         friendsListRepository.save(friendship);
 
         // Jim checks his pending requests
         mockMvc.perform(get("/friends/pending"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].username", is("henk_issue"))); // This is expected to fail and show "jim_issue" instead
+                .andExpect(jsonPath("$[0].username", is("henk_issue")));
     }
 
     @Test
@@ -81,7 +82,7 @@ public class FriendsListIssuesTest {
     void acceptFriendRequest_WithCorrectSenderUsername_ShouldSucceed() throws Exception {
         // Henk sends a friend request to Jim
         com.example.eindopdrachtbackend.models.FriendsList friendship = 
-            new com.example.eindopdrachtbackend.models.FriendsList(userHenk, userJim, "PENDING");
+            new com.example.eindopdrachtbackend.models.FriendsList(userHenk, userJim, FriendshipStatus.PENDING.name());
         friendsListRepository.save(friendship);
 
         FriendsListRequestDto requestDto = new FriendsListRequestDto();
@@ -91,15 +92,15 @@ public class FriendsListIssuesTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("ACCEPTED")));
+                .andExpect(jsonPath("$.status", is(FriendshipStatus.ACCEPTED.name())));
     }
 
     @Test
     @WithMockUser(username = "jim_issue")
-    void acceptFriendRequest_WithIncorrectSenderUsername_ShouldFailWith500() throws Exception {
+    void acceptFriendRequest_WithIncorrectSenderUsername_ShouldFailWith404() throws Exception {
         // Henk sends a friend request to Jim
         com.example.eindopdrachtbackend.models.FriendsList friendship = 
-            new com.example.eindopdrachtbackend.models.FriendsList(userHenk, userJim, "PENDING");
+            new com.example.eindopdrachtbackend.models.FriendsList(userHenk, userJim, FriendshipStatus.PENDING.name());
         friendsListRepository.save(friendship);
 
         FriendsListRequestDto requestDto = new FriendsListRequestDto();

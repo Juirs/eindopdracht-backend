@@ -26,7 +26,7 @@ public class FriendsList {
 
     @Column(name = "status", nullable = false)
     @NotBlank(message = "Status is required")
-    private String status; // PENDING, ACCEPTED, BLOCKED
+    private String status;
     
     @Column(name = "created_at", nullable = false, updatable = false)
     @NotNull(message = "Created date is required")

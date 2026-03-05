@@ -2,7 +2,9 @@ package com.example.eindopdrachtbackend.controllers;
 
 import com.example.eindopdrachtbackend.dtos.ChatRequestDto;
 import com.example.eindopdrachtbackend.dtos.ChatResponseDto;
+import com.example.eindopdrachtbackend.exceptions.RecordNotFoundException;
 import com.example.eindopdrachtbackend.models.ChatMessage;
+import com.example.eindopdrachtbackend.repositories.UserRepository;
 import com.example.eindopdrachtbackend.services.ChatMessageService;
 import jakarta.validation.Valid;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,15 +19,21 @@ public class ChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
+    private final UserRepository userRepository;
 
-    public ChatController(SimpMessagingTemplate messagingTemplate, ChatMessageService chatMessageService) {
+    public ChatController(SimpMessagingTemplate messagingTemplate, ChatMessageService chatMessageService, UserRepository userRepository) {
         this.messagingTemplate = messagingTemplate;
         this.chatMessageService = chatMessageService;
+        this.userRepository = userRepository;
     }
 
     @MessageMapping("/chat.send")
     public void handleChat(@Valid ChatRequestDto request, Principal principal) {
         String sender = principal.getName();
+
+        if (!userRepository.existsByUsername(request.getRecipientUsername())) {
+            throw new RecordNotFoundException("Recipient user not found");
+        }
 
         ChatMessage msg = new ChatMessage();
         msg.setSenderUsername(sender);

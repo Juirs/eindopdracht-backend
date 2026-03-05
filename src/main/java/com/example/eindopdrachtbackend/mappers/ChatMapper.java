@@ -4,7 +4,6 @@ import com.example.eindopdrachtbackend.dtos.ChatResponseDto;
 import com.example.eindopdrachtbackend.models.ChatMessage;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -30,11 +29,8 @@ public class ChatMapper {
             return null;
         }
 
-        List<ChatResponseDto> dtos = new ArrayList<>();
-        for (ChatMessage chatMessage : chatMessages) {
-            dtos.add(toResponseDto(chatMessage));
-        }
-
-        return dtos;
+        return chatMessages.stream()
+                .map(this::toResponseDto)
+                .toList();
     }
 }

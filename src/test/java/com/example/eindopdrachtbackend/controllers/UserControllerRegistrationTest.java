@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ public class UserControllerRegistrationTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @Transactional
     public void testRegisterDeveloper() throws Exception {
         UserRequestDto dto = new UserRequestDto();
         dto.setUsername("testdev");
@@ -47,17 +49,14 @@ public class UserControllerRegistrationTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        System.out.println("Response Status: " + result.getResponse().getStatus());
-        System.out.println("Response Content: " + result.getResponse().getContentAsString());
-
         // Check if user was created
         Optional<User> userOpt = userRepository.findById("testdev");
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            System.out.println("User found in DB: " + user.getUsername());
-            System.out.println("User roles: " + user.getRoles());
-        } else {
-            System.out.println("User NOT found in DB");
-        }
+        assertTrue(userOpt.isPresent(), "User should be created in database");
+
+        User user = userOpt.get();
+        assertTrue(
+                user.getRoles().stream().anyMatch(r -> "DEVELOPER".equals(r.getRole())),
+                "User should have DEVELOPER role"
+        );
     }
 }

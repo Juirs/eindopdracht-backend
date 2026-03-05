@@ -11,9 +11,16 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String senderUsername;
+
+    @Column(nullable = false)
     private String recipientUsername;
+
+    @Column(nullable = false, length = 4000)
     private String content;
+
+    @Column(nullable = false)
     private LocalDateTime sentAt;
 
     public ChatMessage() {

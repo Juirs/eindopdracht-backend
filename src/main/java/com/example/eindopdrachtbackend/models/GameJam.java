@@ -18,15 +18,16 @@ public class GameJam {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false)
     private String rules;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 200)
     private String theme;
 
+    @Column(length = 1000)
     private String gameJamImageUrl;
 
     @Column(name = "start_date", nullable = false)

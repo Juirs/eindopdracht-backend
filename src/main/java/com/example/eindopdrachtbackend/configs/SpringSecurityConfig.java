@@ -102,6 +102,21 @@ public class SpringSecurityConfig {
                                 // Email functionality
                                 .requestMatchers(HttpMethod.POST, "/send").hasRole("ADMIN")
 
+                                // WebSocket STOMP handshake & SockJS endpoints
+                                .requestMatchers("/ws/**").permitAll()
+
+                                // Chat history REST endpoint
+                                .requestMatchers(HttpMethod.GET, "/chat/with/{username}").authenticated()
+
+                                // Friends list endpoints
+                                .requestMatchers(HttpMethod.GET, "/friends").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/friends/all").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/friends/pending").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/friends/request").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/friends/accept").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/friends/decline").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/friends/remove").authenticated()
+
                                 .anyRequest().denyAll()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

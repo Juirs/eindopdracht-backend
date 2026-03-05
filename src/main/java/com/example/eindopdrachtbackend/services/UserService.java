@@ -10,6 +10,8 @@ import com.example.eindopdrachtbackend.models.UserProfile;
 import com.example.eindopdrachtbackend.repositories.RoleRepository;
 import com.example.eindopdrachtbackend.repositories.UserRepository;
 import com.example.eindopdrachtbackend.utils.RandomStringGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,10 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
+@Transactional
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
@@ -55,7 +60,7 @@ public class UserService {
     }
 
     // CREATE OPERATION
-    public String createUser(UserRequestDto userRequestDto, EmailService emailService) {
+    public String createUser(UserRequestDto userRequestDto, EmailService emailService, boolean isDeveloper) {
         if (userExists(userRequestDto.getUsername())) {
             throw new RuntimeException("Username already exists: " + userRequestDto.getUsername());
         }
@@ -78,6 +83,10 @@ public class UserService {
         User savedUser = userRepository.save(newUser);
         addRole(savedUser.getUsername(), "USER");
 
+        if (isDeveloper) {
+            addRole(savedUser.getUsername(), "DEVELOPER");
+        }
+
         String subject = "User Registered - IndieVerse";
         String body = String.format(
                 """
@@ -92,7 +101,11 @@ public class UserService {
                 savedUser.getUsername()
         );
 
-        emailService.sendEmail(savedUser.getEmail(), subject, body);
+        try {
+            emailService.sendEmail(savedUser.getEmail(), subject, body);
+        } catch (Exception e) {
+            logger.warn("Failed to send registration email to {}: {}", savedUser.getEmail(), e.getMessage());
+        }
 
         return savedUser.getUsername();
     }
@@ -129,7 +142,11 @@ public class UserService {
             user.getUsername()
         );
 
-        emailService.sendEmail(user.getEmail(), subject, body);
+        try {
+            emailService.sendEmail(user.getEmail(), subject, body);
+        } catch (Exception e) {
+            System.err.println("Failed to send password change email: " + e.getMessage());
+        }
     }
 
     // DELETE OPERATION

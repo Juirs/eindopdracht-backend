@@ -15,17 +15,18 @@ public class GameJamRequestDto {
     private String name;
 
     @NotBlank(message = "Description is required")
-    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+    @Size(max = 2000, message = "Description cannot exceed 2000 characters")
     private String description;
 
     @NotBlank(message = "Rules are required")
-    @Size(max = 1000, message = "Rules cannot exceed 1000 characters")
+    @Size(max = 2000, message = "Rules cannot exceed 2000 characters")
     private String rules;
 
     @NotBlank(message = "Theme is required")
-    @Size(max = 100, message = "Theme cannot exceed 100 characters")
+    @Size(max = 200, message = "Theme cannot exceed 200 characters")
     private String theme;
 
+    @Size(max = 1000, message = "Image URL cannot exceed 1000 characters")
     private String gameJamImageUrl;
 
     @NotNull(message = "Start date is required")

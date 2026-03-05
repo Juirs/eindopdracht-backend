@@ -7,6 +7,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
@@ -27,14 +28,16 @@ public class UserPrincipalChannelInterceptor implements ChannelInterceptor {
 
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-            if (sessionAttributes != null && sessionAttributes.containsKey("username")) {
-                String username = (String) sessionAttributes.get("username");
-                var userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
-                accessor.setUser(auth);
+            Object usernameValue = sessionAttributes == null ? null : sessionAttributes.get("username");
+            if (!(usernameValue instanceof String username) || username.isBlank()) {
+                throw new AccessDeniedException("Unauthorized WebSocket CONNECT");
             }
+
+            var userDetails = userDetailsService.loadUserByUsername(username);
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities()
+            );
+            accessor.setUser(auth);
         }
         return message;
     }

@@ -9,6 +9,7 @@ import com.example.eindopdrachtbackend.services.ChatMessageService;
 import jakarta.validation.Valid;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -29,6 +30,9 @@ public class ChatController {
 
     @MessageMapping("/chat.send")
     public void handleChat(@Valid ChatRequestDto request, Principal principal) {
+        if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+            throw new AccessDeniedException("Authentication required for chat messages");
+        }
         String sender = principal.getName();
 
         if (!userRepository.existsByUsername(request.getRecipientUsername())) {
